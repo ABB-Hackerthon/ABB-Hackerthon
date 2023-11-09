@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import GestureFlipView from "../components/GestureFlipView";
 import CommonLayout from "../components/CommonLayout";
 import ProfileItem from "../components/ProfileItem";
-import NftProfile from "../components/NftProfile";
+import NftProfile from "../components/DidProfile";
 import Footer from "../components/Footer";
 import * as SecureStore from "expo-secure-store";
 
