@@ -132,7 +132,7 @@ const Profile = ({ navigation }: any) => {
 							{renderFront()}
 						</GestureFlipView>
 						{dogList.map((dogItem: any, index: any) => {
-							console.log("dog Item  : : : : : ", dogItem);
+							// console.log("dog Item  : : : : : ", dogItem);
 							return (
 								<View key={index} style={{ marginLeft: 10 }}>
 									<NftProfile

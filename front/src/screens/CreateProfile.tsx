@@ -99,9 +99,17 @@ const CreateProfile = ({ navigation }: any) => {
 		} else if (value == "dogSex") {
 			return petGender;
 		} else if (value == "dogOwner") {
+			try {
+				const response = axiosApi.get("/user");
+				console.log("response : : : : : : : : : : : : : ");
+				console.log(response);
+			} catch {
+				console.log("현재 에러상황발생 현재 에러상황발생 현재 에러상황발생 현재 에러상황발생");
+			}
 			axiosApi.get("/user").then((data) => {
 				if (data.data.message === "회원 정보 조회 완료") {
 					console.log("user", data.data.data);
+					console.log("userName", data.data.data.userName);
 					const petOwner = data.data.data.userName;
 					return petOwner;
 				}
@@ -162,26 +170,30 @@ const CreateProfile = ({ navigation }: any) => {
 
 					for (let i = 0; i < templateList.length; i++) {
 						const element = templateList[i];
-						// console.log("element : ", element);
+						console.log("element : ", element);
 						const templateId = element.template_id;
 						console.log("templateId : ", templateId);
-						const templateSubjectKey = element.reg_hash.subject_key;
+						const templateSubjectKey = element.subject_key;
 						const templateValue = changeSubjectKey(templateSubjectKey);
+
+						console.log("nowDID : ", nowDID);
+						console.log("templateSubjectKey : ", templateSubjectKey);
+						console.log("templateValue : ", templateValue);
 
 						//2-2. DID Template 를 기준으로 크리덴셜을 발행
 						const response = await axios.post(
 							`${ABB_BASE_URL}/v1/mitumt/did/issue`,
 							{
-								token: ABB_APP_KEY,
-								chain: "mitumt",
-								did: nowDID,
-								template_id: templateId,
-								subject: {
-									key: templateSubjectKey,
-									value: templateValue,
+								"token": ABB_APP_KEY,
+								"chain": "mitumt",
+								"did": nowDID,
+								"template_id": templateId,
+								"subject": {
+									"key": templateSubjectKey,
+									"value": templateValue
 								},
-								validfrom: "2023-11-09T00:00:00.000Z",
-								validuntil: "2099-12-31T23:59:59.999Z",
+								"validfrom": "2023-11-10T00:00:00.000Z",
+								"validuntil": "2099-12-31T23:59:59.999Z"
 							},
 						);
 					}
