@@ -11,12 +11,15 @@ import {
 import PatrolDiaryCard from "../components/PatrolDiaryCard";
 import { useNavigation } from "@react-navigation/native";
 
+// 해결해줘
+//  dd
 const Record = () => {
 	const navigation = useNavigation();
 
 	const petrolList = [
 		{
 			patrolDiaryInfo: {
+				patrolNo: 1,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
@@ -24,6 +27,7 @@ const Record = () => {
 		},
 		{
 			patrolDiaryInfo: {
+				patrolNo: 2,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
@@ -31,6 +35,7 @@ const Record = () => {
 		},
 		{
 			patrolDiaryInfo: {
+				patrolNo: 3,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
@@ -38,6 +43,7 @@ const Record = () => {
 		},
 		{
 			patrolDiaryInfo: {
+				patrolNo: 4,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
