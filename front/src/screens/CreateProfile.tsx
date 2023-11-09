@@ -25,13 +25,11 @@ import {
 	AWS_REGION,
 	AWS_BUCKET,
 	ABB_APP_KEY,
-	DID_PROJECT_ID
+	DID_PROJECT_ID,
 } from "@env";
 import RNFS from "react-native-fs";
 import { ethers } from "ethers";
-import {
-	ABB_BASE_URL,
-} from "../constants/constants";
+import { ABB_BASE_URL } from "../constants/constants";
 
 import WalletLoading from "../components/WalletLoading";
 
@@ -90,17 +88,17 @@ const CreateProfile = ({ navigation }: any) => {
 	});
 
 	//template subjectkey 스위치문
-	const changeSubjectKey = (value:any) => {
+	const changeSubjectKey = (value: any) => {
 		const answer = "";
-		if(value=="dogBirth"){
+		if (value == "dogBirth") {
 			return petBirth;
-		} else if(value=="dogBreed") {
+		} else if (value == "dogBreed") {
 			return petSpecies;
-		} else if(value=="dogName") {
+		} else if (value == "dogName") {
 			return petName;
-		} else if(value=="dogSex") {
+		} else if (value == "dogSex") {
 			return petGender;
-		} else if(value=="dogOwner") {
+		} else if (value == "dogOwner") {
 			axiosApi.get("/user").then((data) => {
 				if (data.data.message === "회원 정보 조회 완료") {
 					console.log("user", data.data.data);
@@ -109,7 +107,7 @@ const CreateProfile = ({ navigation }: any) => {
 				}
 			});
 		}
-	}
+	};
 
 	const uploadImage = async (uri: any) => {
 		const response = await fetch(uri);
@@ -125,7 +123,7 @@ const CreateProfile = ({ navigation }: any) => {
 
 		await s3.upload(params, async (err: any, data: any) => {
 			if (err) {
-				alert('s3 시스템 에러, 관리자에게 문의하세요.');
+				alert("s3 시스템 에러, 관리자에게 문의하세요.");
 				setIsLoading(false);
 				console.log("err", err);
 				return;
@@ -134,28 +132,30 @@ const CreateProfile = ({ navigation }: any) => {
 				try {
 					//1. DID account 계정 생성
 					const createDIDResponse = await axios.post(
-						`${ABB_BASE_URL}/v1/mitumt/did/create_account`, 
+						`${ABB_BASE_URL}/v1/mitumt/did/create_account`,
 						{
-							"token": ABB_APP_KEY,
-							"chain": "mitumt"
-						}
+							token: ABB_APP_KEY,
+							chain: "mitumt",
+						},
 					);
-					console.log("createDIDResponse.data.data : ", createDIDResponse.data.data);
+					console.log(
+						"createDIDResponse.data.data : ",
+						createDIDResponse.data.data,
+					);
 					const nowDID = createDIDResponse.data.data.did;
 					console.log("nowDID : ", nowDID);
 					const publickey = await SecureStore.getItemAsync("publickey");
 					console.log("publickey : ", publickey);
-
 
 					//2.Issue Credential 생성 (DID에 들어가는 세부항목-조건?)
 					//2-1. tempalte 리스트 받아오기
 					const response = await axios.post(
 						`${ABB_BASE_URL}/v1/mitumt/did/templates`,
 						{
-							"token": ABB_APP_KEY,
-							"chain": "mitumt",
-							"project_id": DID_PROJECT_ID
-						}
+							token: ABB_APP_KEY,
+							chain: "mitumt",
+							project_id: DID_PROJECT_ID,
+						},
 					);
 
 					const templateList = response.data.data;
@@ -164,51 +164,46 @@ const CreateProfile = ({ navigation }: any) => {
 						const element = templateList[i];
 						// console.log("element : ", element);
 						const templateId = element.template_id;
-						console.log("templateId : ",templateId);
+						console.log("templateId : ", templateId);
 						const templateSubjectKey = element.reg_hash.subject_key;
-						const templateValue =  changeSubjectKey(templateSubjectKey);
+						const templateValue = changeSubjectKey(templateSubjectKey);
 
 						//2-2. DID Template 를 기준으로 크리덴셜을 발행
 						const response = await axios.post(
 							`${ABB_BASE_URL}/v1/mitumt/did/issue`,
 							{
-								"token": ABB_APP_KEY,
-								"chain": "mitumt",
-								"did": nowDID,
-								"template_id": templateId,
-								"subject": {
-									"key": templateSubjectKey,
-									"value": templateValue
+								token: ABB_APP_KEY,
+								chain: "mitumt",
+								did: nowDID,
+								template_id: templateId,
+								subject: {
+									key: templateSubjectKey,
+									value: templateValue,
 								},
-								"validfrom": "2023-11-09T00:00:00.000Z",
-								"validuntil": "2099-12-31T23:59:59.999Z"
-								}
-
+								validfrom: "2023-11-09T00:00:00.000Z",
+								validuntil: "2099-12-31T23:59:59.999Z",
+							},
 						);
 					}
 
 					//3. DB에 강아지 정보 저장
-					const idogResponse = await axiosApi.post(
-						`/dog`,
-						{
-							dogName: petName,
-							dogBreed: petSpecies,
-							dogBirthDate: petBirth,
-							dogSex: petGender,
-							dogHash: "",
-							dogImg: String(s3ImageUrl),
-						}
-					);
+					const idogResponse = await axiosApi.post(`/dog`, {
+						dogName: petName,
+						dogBreed: petSpecies,
+						dogBirthDate: petBirth,
+						dogSex: petGender,
+						dogHash: "",
+						dogImg: String(s3ImageUrl),
+					});
 
-					if(idogResponse.data.message === "강아지 프로필 등록 완료"){
-						Alert.alert('프로필 생성이 완료되었습니다.');
+					if (idogResponse.data.message === "강아지 프로필 등록 완료") {
+						Alert.alert("프로필 생성이 완료되었습니다.");
 						await setIsLoading(false);
 						await navigation.replace("Profile");
-					}else{
+					} else {
 						await setIsLoading(false);
-						alert('프로필 생성 실패, 관리자에게 문의하세요.');
+						alert("프로필 생성 실패, 관리자에게 문의하세요.");
 					}
-				
 
 					// const issueResponse = await axios.post(
 					// 	`${ABB_BASE_URL}/v1/mitumt/did/templates`,
@@ -218,15 +213,12 @@ const CreateProfile = ({ navigation }: any) => {
 					// 		"project_id": DID_PROJECT_ID,
 					// 	}
 					// )
-
-
 				} catch (error) {
 					console.log(error);
 				}
 			}
 		});
 	};
-
 
 	const uploadIpfs = async () => {
 		try {
@@ -417,11 +409,10 @@ const CreateProfile = ({ navigation }: any) => {
 						onCancel={hideDatePicker}
 					/>
 				</View>
-				{
-					dropdownVIsible ?
+				{dropdownVIsible ? (
 					<>
-						<View style={{marginTop:33}}></View>
-							<View style={CreateProfileLayout.formButtonWrap}>
+						<View style={{ marginTop: 33 }}></View>
+						<View style={CreateProfileLayout.formButtonWrap}>
 							{isLoading ? (
 								<TouchableOpacity activeOpacity={0.7}>
 									<View style={CreateProfileLayout.submitInactiveButton}>
@@ -450,47 +441,51 @@ const CreateProfile = ({ navigation }: any) => {
 								onPress={() => navigation.navigate("Profile")}
 							>
 								<View style={CreateProfileLayout.cancelButton}>
-									<Text style={CreateProfileLayout.cancelButtonText}>취소하기</Text>
+									<Text style={CreateProfileLayout.cancelButtonText}>
+										취소하기
+									</Text>
 								</View>
 							</TouchableOpacity>
 						</View>
 					</>
-					:
+				) : (
 					<View style={CreateProfileLayout.formButtonWrap}>
-					{isLoading ? (
-						<TouchableOpacity activeOpacity={0.7}>
-							<View style={CreateProfileLayout.submitInactiveButton}>
-								<Text style={CreateProfileLayout.submitInactiveButtonText}>
-									프로필 생성하기
-								</Text>
-							</View>
-						</TouchableOpacity>
-					) : (
+						{isLoading ? (
+							<TouchableOpacity activeOpacity={0.7}>
+								<View style={CreateProfileLayout.submitInactiveButton}>
+									<Text style={CreateProfileLayout.submitInactiveButtonText}>
+										프로필 생성하기
+									</Text>
+								</View>
+							</TouchableOpacity>
+						) : (
+							<TouchableOpacity
+								activeOpacity={0.7}
+								onPress={() => {
+									uploadIpfs();
+								}}
+							>
+								<View style={CreateProfileLayout.submitButton}>
+									<Text style={CreateProfileLayout.submitButtonText}>
+										프로필 생성하기
+									</Text>
+								</View>
+							</TouchableOpacity>
+						)}
+
 						<TouchableOpacity
 							activeOpacity={0.7}
-							onPress={() => {
-								uploadIpfs();
-							}}
+							onPress={() => navigation.navigate("Profile")}
 						>
-							<View style={CreateProfileLayout.submitButton}>
-								<Text style={CreateProfileLayout.submitButtonText}>
-									프로필 생성하기
+							<View style={CreateProfileLayout.cancelButton}>
+								<Text style={CreateProfileLayout.cancelButtonText}>
+									취소하기
 								</Text>
 							</View>
 						</TouchableOpacity>
-					)}
+					</View>
+				)}
 
-					<TouchableOpacity
-						activeOpacity={0.7}
-						onPress={() => navigation.navigate("Profile")}
-					>
-						<View style={CreateProfileLayout.cancelButton}>
-							<Text style={CreateProfileLayout.cancelButtonText}>취소하기</Text>
-						</View>
-					</TouchableOpacity>
-				</View>
-				}
-				
 				<Footer />
 			</CommonLayout>
 			{isLoading ? (
