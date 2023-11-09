@@ -6,6 +6,9 @@ import {
 	TouchableOpacity,
 	Modal,
 } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { ABB_APP_KEY } from "@env";
+import { ABB_BASE_URL } from "../constants/constants";
 import CommonLayout from "../components/CommonLayout";
 import ColorHeader from "../components/ColorHeader";
 import Footer from "../components/Footer";
@@ -14,8 +17,9 @@ import {
 	responsiveWidth,
 } from "react-native-responsive-dimensions";
 import { LinearGradient } from "react-native-linear-gradient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "react-native-qrcode-svg";
+import axios from "axios";
 
 const WAlletCardList = () => {
 	const wallet1 = {
@@ -59,6 +63,43 @@ const WAlletCardList = () => {
 	const [walletList, setWalletList] = useState([wallet1, wallet2, wallet3]);
 	const [selectedWallet, setSelectedWallet] = useState(null);
 	const [modalVisible, setModalVisible] = useState(false);
+
+	const selectMyAsset = async () => {
+		const response = await axios.post(
+			`${ABB_BASE_URL}/v1/mitumt/token/tokens`,
+			{
+				"token":ABB_APP_KEY,
+				"chain":"mitumt"
+			}
+		)
+		// console.log(response.request._response);
+		const responseJSON = JSON.parse(response.request._response);
+		console.log(responseJSON.data.length);
+		const contractList = responseJSON.data;
+
+		for (let i = 0; i < contractList.length; i++) {
+			const element = contractList[i];
+			const contractAddress = element.contract.data.address
+			const myAddress = await SecureStore.getItemAsync("address");
+			const response = await axios.post(
+				`${ABB_BASE_URL}/v1/mitumt/token/balance`,
+				{
+					"token": ABB_APP_KEY,
+					"chain": "mitumt",
+					"cont_addr": contractAddress,
+					"addr": "DApiGosNuMJjRa677xxLL2zwLATZEouTuiHx6XYnVAh9mca"
+				}
+			)
+			console.log(response.data.data.balance);
+			
+		}
+
+	}
+
+	useEffect(() => {
+		selectMyAsset();
+	}, []);
+
 
 	// 모달을 여는 함수
 	const openModal = (wallet) => {
