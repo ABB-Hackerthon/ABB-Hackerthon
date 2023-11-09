@@ -6,7 +6,6 @@ import {
 	responsiveHeight,
 	responsiveWidth,
 } from "react-native-responsive-dimensions";
-import { useState } from "react";
 import { launchImageLibrary } from "react-native-image-picker";
 
 const EditImage = ({ selectedImg, setSelectedImg }: any) => {
