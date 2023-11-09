@@ -12,7 +12,7 @@ import PatrolDiaryCard from "../components/PatrolDiaryCard";
 import { useNavigation } from "@react-navigation/native";
 
 // 해결해줘
-
+//  dd
 const Record = () => {
 	const navigation = useNavigation();
 
