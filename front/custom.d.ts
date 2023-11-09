@@ -28,4 +28,5 @@ declare module "@env" {
 	export const POLYGON_API_KEY: string;
 	export const CLIENT_PRIVATE_KEY: string;
 	export const ABB_APP_KEY: string;
+	export const DID_PROJECT_ID: string;
 }

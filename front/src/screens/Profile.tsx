@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import GestureFlipView from "../components/GestureFlipView";
 import CommonLayout from "../components/CommonLayout";
 import ProfileItem from "../components/ProfileItem";
-import NftProfile from "../components/DidProfile";
+import NftProfile from "../components/NftProfile";
 import Footer from "../components/Footer";
 import * as SecureStore from "expo-secure-store";
 
@@ -51,8 +51,8 @@ const Profile = ({ navigation }: any) => {
 	};
 
 	const createProfile = async (moveUri: string) => {
-		const walletAddress = await SecureStore.getItemAsync("walletAddress");
-		console.log("walletAddress", walletAddress);
+		const walletAddress = await SecureStore.getItemAsync("address");
+		console.log("address", walletAddress);
 		if (
 			walletAddress === null ||
 			walletAddress === undefined ||
