@@ -27,6 +27,7 @@ import AddPlusIcon from "../../assets/images/add-plus-icon.png";
 
 import CreateFeedLayout from "../styles/createFeedLayout";
 import { set } from "mobx";
+import GeoLocationAPI from "../components/GeoLocationAPI";
 
 const CreateFeed = ({ navigation, route }: any) => {
 	// const selectedId = route.params.selectedId;
@@ -34,6 +35,7 @@ const CreateFeed = ({ navigation, route }: any) => {
 	const [imageUri, setImage] = useState<string | null>(null);
 	const [comment, setComment] = useState<string | null>(null);
 	const [clickButton, setClickButton] = useState<boolean>(false);
+	const [address, setAddress] = useState<string>("");
 
 	// s3 클라이언트 초기화
 	const s3 = new S3({
@@ -131,6 +133,9 @@ const CreateFeed = ({ navigation, route }: any) => {
 						산책하며 발생한{"\n"}
 						이상 현상을 신고해주세요!
 					</Text>
+					<View style={CreateFeedLayout.locationContainer}>
+						<Text style={CreateFeedLayout.locationText}>{address}</Text>
+					</View>
 				</View>
 
 				<TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
@@ -161,6 +166,7 @@ const CreateFeed = ({ navigation, route }: any) => {
 						onChangeText={(text) => setComment(text)}
 					/>
 				</View>
+				<GeoLocationAPI setAddress={setAddress} />
 
 				<View style={CreateFeedLayout.buttonWrap}>
 					<TouchableOpacity activeOpacity={0.7} onPress={submitFeed}>

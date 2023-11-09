@@ -29,4 +29,5 @@ declare module "@env" {
 	export const CLIENT_PRIVATE_KEY: string;
 	export const ABB_APP_KEY: string;
 	export const DID_PROJECT_ID: string;
+	export const GEOCODING_API_KEY: string;
 }

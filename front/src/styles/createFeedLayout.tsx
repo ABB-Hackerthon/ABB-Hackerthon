@@ -14,6 +14,16 @@ const CreateFeedLayout = StyleSheet.create({
 		fontWeight: "400",
 		color: "#C8C9CE",
 	},
+	locationContainer: {
+		justifyContent: "center",
+		alignItems: "center",
+		marginTop: 20,
+	},
+	locationText: {
+		fontSize: 15,
+		fontWeight: "bold",
+		color: "#21242B",
+	},
 	createMainTitle: {
 		fontSize: 18,
 		fontWeight: "700",

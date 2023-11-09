@@ -4,12 +4,17 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import * as SecureStore from "expo-secure-store";
 import { Button, View } from "react-native";
-import { ANDROID_CLIENT_ID } from "@env";
+import { ANDROID_CLIENT_ID, ABB_APP_KEY } from "@env";
 // import axios from "../utils/axios";
 import axios from "axios";
 import IndexStore from "../stores/IndexStore";
 import SideMenuLayout from "../styles/sideMenuLayout";
-import { BASE_URL, CONTENT_TYPE, TIMEOUT } from "../constants/constants";
+import {
+	BASE_URL,
+	CONTENT_TYPE,
+	TIMEOUT,
+	ABB_BASE_URL,
+} from "../constants/constants";
 import { logout } from "../utils/logout";
 import { observer } from "mobx-react";
 
@@ -18,7 +23,7 @@ WebBrowser.maybeCompleteAuthSession();
 const Login = () => {
 	const stores = IndexStore();
 	const [request, response, promptAsync] = Google.useAuthRequest({
-		"androidClientId": ANDROID_CLIENT_ID,
+		androidClientId: ANDROID_CLIENT_ID,
 	});
 
 	const handleSignInWithGoogle = async () => {
@@ -53,11 +58,8 @@ const Login = () => {
 					data.data.data.refreshToken,
 				);
 				const address = await SecureStore.getItemAsync("address");
-
-				console.log("어드레스!:", address);
-
+				console.log("address : ", address);
 				if (address === null) {
-					console.log("널값");
 					await postCreateAccount();
 				}
 			} else {
@@ -70,6 +72,42 @@ const Login = () => {
 
 	const handleLogout = async () => {
 		await logout();
+	};
+
+	const postCreateAccount = async () => {
+		try {
+			const data = await axios.post(
+				`${ABB_BASE_URL}/v1/mitumt/com/acc_create`,
+				{
+					token: ABB_APP_KEY,
+					chain: "mitumt",
+				},
+			);
+
+			console.log(
+				"Data.data.data.wallet.address : ",
+				data.data.data.wallet.address,
+			);
+			console.log(
+				"Data.data.data.wallet.privatekey : ",
+				data.data.data.wallet.privatekey,
+			);
+			console.log(
+				"Data.data.data.wallet.publickey : ",
+				data.data.data.wallet.publickey,
+			);
+			await SecureStore.setItemAsync("address", data.data.data.wallet.address);
+			await SecureStore.setItemAsync(
+				"privatekey",
+				data.data.data.wallet.privatekey,
+			);
+			await SecureStore.setItemAsync(
+				"publickey",
+				data.data.data.wallet.publickey,
+			);
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	// Google 인증 응답이 바뀔때마다 실행
