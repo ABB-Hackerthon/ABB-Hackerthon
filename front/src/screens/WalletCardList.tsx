@@ -7,7 +7,12 @@ import {
 	Modal,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { ABB_APP_KEY } from "@env";
+import {
+	ABB_APP_KEY,
+	CONTRACT_ADDRESS_COFFEE,
+	CONTRACT_ADDRESS_DOG_FOOD,
+	CONTRACT_ADDRESS_GAS,
+} from "@env";
 import { ABB_BASE_URL } from "../constants/constants";
 import CommonLayout from "../components/CommonLayout";
 import ColorHeader from "../components/ColorHeader";
@@ -20,39 +25,15 @@ import { LinearGradient } from "react-native-linear-gradient";
 import { useEffect, useState } from "react";
 import QRCode from "react-native-qrcode-svg";
 import axios from "axios";
+type Wallet = {
+	name: string;
+	period: string;
+	contractAddress: string;
+	discount: string;
+	balance: number;
+};
 
 const WAlletCardList = () => {
-	const wallet1 = {
-		분류: "식품",
-		id: 1,
-		name: "쿠폰이름1",
-		유효기간: "2021-09-01",
-		품목: "품목입니다.",
-		할인율: "10%",
-		발행일: "2021-08-01",
-		쿠폰번호: "1234-1234-1234-1234",
-	};
-	const wallet2 = {
-		분류: "식품",
-		id: 1,
-		name: "쿠폰이름221",
-		유효기간: "2021-09-01",
-		품목: "품목입니다.",
-		할인율: "40%",
-		발행일: "2021-08-01",
-		쿠폰번호: "1234-1234-1234-1234",
-	};
-	const wallet3 = {
-		분류: "식품",
-		id: 1,
-		name: "쿠폰이름1",
-		유효기간: "2021-09-01",
-		품목: "품목입니다.",
-		할인율: "50%",
-		발행일: "2021-08-01",
-		쿠폰번호: "1234-1234-1234-1234",
-	};
-
 	const textToImg = {
 		식품: {
 			img: require("../../assets/images/food.png"),
@@ -60,46 +41,79 @@ const WAlletCardList = () => {
 		},
 	};
 
-	const [walletList, setWalletList] = useState([wallet1, wallet2, wallet3]);
+	const [walletList, setWalletList] = useState<Wallet[]>([]);
 	const [selectedWallet, setSelectedWallet] = useState(null);
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const selectMyAsset = async () => {
-		const response = await axios.post(
-			`${ABB_BASE_URL}/v1/mitumt/token/tokens`,
-			{
-				"token":ABB_APP_KEY,
-				"chain":"mitumt"
-			}
-		)
-		// console.log(response.request._response);
-		const responseJSON = JSON.parse(response.request._response);
-		console.log(responseJSON.data.length);
-		const contractList = responseJSON.data;
-
-		for (let i = 0; i < contractList.length; i++) {
-			const element = contractList[i];
-			const contractAddress = element.contract.data.address
-			const myAddress = await SecureStore.getItemAsync("address");
+		try {
 			const response = await axios.post(
-				`${ABB_BASE_URL}/v1/mitumt/token/balance`,
+				`${ABB_BASE_URL}/v1/mitumt/token/tokens`,
 				{
-					"token": ABB_APP_KEY,
-					"chain": "mitumt",
-					"cont_addr": contractAddress,
-					"addr": "DApiGosNuMJjRa677xxLL2zwLATZEouTuiHx6XYnVAh9mca"
-				}
-			)
-			console.log(response.data.data.balance);
-			
-		}
+					token: ABB_APP_KEY,
+					chain: "mitumt",
+				},
+			);
+			const responseJSON = JSON.parse(response.request._response);
+			const contractList = responseJSON.data;
 
-	}
+			let newWalletList: Wallet[] = [];
+
+			for (let i = 0; i < contractList.length; i++) {
+				const element = contractList[i];
+				const contractAddress = element.contract.data.address;
+				console.log(contractAddress);
+				const myAddress = await SecureStore.getItemAsync("address");
+				const balanceResponse = await axios.post(
+					`${ABB_BASE_URL}/v1/mitumt/token/balance`,
+					{
+						token: ABB_APP_KEY,
+						chain: "mitumt",
+						cont_addr: contractAddress,
+						addr: myAddress,
+					},
+				);
+
+				let balance = balanceResponse.data.data.balance;
+				let name, discount, period;
+
+				if (contractAddress === CONTRACT_ADDRESS_COFFEE && balance > 0) {
+					name = "커피";
+					discount = "5%";
+					period = "2023-12-11";
+				} else if (
+					contractAddress === CONTRACT_ADDRESS_DOG_FOOD &&
+					balance > 0
+				) {
+					name = "사료";
+					discount = "10%";
+					period = "2023-12-11";
+				} else if (contractAddress === CONTRACT_ADDRESS_GAS && balance > 0) {
+					name = "가스";
+					discount = "5%";
+					period = "2023-12-11";
+				} else {
+					continue; // 알려지지 않은 계약 주소는 무시합니다.
+				}
+
+				newWalletList.push({
+					name,
+					period,
+					contractAddress,
+					discount,
+					balance,
+				});
+			}
+
+			setWalletList(newWalletList);
+		} catch (error) {
+			console.error("Error fetching wallet data:", error);
+		}
+	};
 
 	useEffect(() => {
 		selectMyAsset();
 	}, []);
-
 
 	// 모달을 여는 함수
 	const openModal = (wallet) => {
@@ -161,11 +175,12 @@ const WAlletCardList = () => {
 									</View>
 									<View style={styles.wallettextcol}>
 										<Text>{wallet.name}</Text>
-										<Text>유효기간: {wallet.유효기간}</Text>
+										<Text>유효기간: {wallet.period}</Text>
+										<Text>저장된 갯수: {wallet.balance}</Text>
 									</View>
-									<Text>품목: {wallet.품목}</Text>
+									<Text>품목: {wallet.name}</Text>
 									<View>
-										<Text>{wallet.할인율}</Text>
+										<Text>{wallet.discount}</Text>
 									</View>
 								</TouchableOpacity>
 							</>
@@ -186,12 +201,12 @@ const WAlletCardList = () => {
 								<>
 									<View style={styles.cardcontainer}>
 										<Text style={styles.modalText}>{selectedWallet?.name}</Text>
-										<Text>유효기간: {selectedWallet?.유효기간}</Text>
-										<Text>번호: {selectedWallet.쿠폰번호}</Text>
+										<Text>유효기간: {selectedWallet?.period}</Text>
+										<Text>토큰번호: {selectedWallet.contractAddress}</Text>
 									</View>
 									<View style={styles.qrImg}>
 										<QRCode
-											value={selectedWallet.쿠폰번호}
+											value={selectedWallet.contractAddress}
 											size={200} // QR 코드의 크기를 정할 수 있습니다.
 											color="black" // QR 코드의 색상을 지정할 수 있습니다.
 											backgroundColor="white"
