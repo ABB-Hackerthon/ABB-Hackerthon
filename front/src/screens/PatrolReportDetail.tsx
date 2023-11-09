@@ -21,6 +21,8 @@ import {
 } from "react-native-responsive-dimensions";
 import MultiPicture from "../components/MultiPicture";
 
+// 해결해줘
+
 const PatrolReportDetail = ({ route }: any) => {
 	const { navigate } = useNavigation();
 	const [data, setData] = useState({});
