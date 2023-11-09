@@ -34,6 +34,7 @@ import ShowPrivate from "./src/screens/ShowPrivate";
 import WalletCardList from "./src/screens/WalletCardList";
 import Record from "./src/screens/Record";
 import CreateRecord from "./src/screens/CreateRecord";
+import PatrolReportDetail from "./src/screens/PatrolReportDetail";
 
 LogBox.ignoreAllLogs();
 
@@ -89,6 +90,10 @@ const App = () => {
 					<Stack.Screen name="WalletCardList" component={WalletCardList} />
 					<Stack.Screen name="Record" component={Record} />
 					<Stack.Screen name="CreateRecord" component={CreateRecord} />
+					<Stack.Screen
+						name="PatrolReportDetail"
+						component={PatrolReportDetail}
+					></Stack.Screen>
 				</Stack.Navigator>
 			</NavigationContainer>
 		</>

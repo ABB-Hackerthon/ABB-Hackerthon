@@ -14,9 +14,10 @@ const PatrolDiaryCard = ({ imgSrc, patrolDiaryInfo }: any) => {
 		<>
 			<TouchableOpacity
 				onPress={() => {
-					// navigation.navigate("PatrolReportDetail", {
-					// 	patrolNo: patrolDiaryInfo.patrolNo,
-					// });
+					console.log(patrolDiaryInfo.patrolNo);
+					navigation.navigate("PatrolReportDetail", {
+						patrolNo: patrolDiaryInfo.patrolNo,
+					});
 				}}
 			>
 				<View style={style.cardWrap}>
