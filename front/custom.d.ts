@@ -34,4 +34,7 @@ declare module "@env" {
 	export const CONT_ADDR: string;
 	export const DID_PROJECT_ID: string;
 	export const GEOCODING_API_KEY: string;
+	export const CONTRACT_ADDRESS_COFFEE: string;
+	export const CONTRACT_ADDRESS_GAS: string;
+	export const CONTRACT_ADDRESS_DOG_FOOD: string;
 }

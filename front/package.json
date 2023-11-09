@@ -67,6 +67,7 @@
     "react-native-screens": "~3.22.0",
     "react-native-splash-screen": "^3.3.0",
     "react-native-svg": "^13.14.0",
+    "react-native-vector-icons": "^10.0.2",
     "react-native-web": "~0.19.6",
     "sentry-expo": "~7.0.0"
   },
@@ -74,6 +75,7 @@
     "@babel/core": "^7.20.0",
     "@react-native-community/eslint-config": "^3.2.0",
     "@types/react": "~18.2.14",
+    "@types/react-native-vector-icons": "^6.4.17",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
     "eslint": "^8.48.0",
