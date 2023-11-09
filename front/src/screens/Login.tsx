@@ -58,7 +58,9 @@ const Login = () => {
 					data.data.data.refreshToken,
 				);
 				const address = await SecureStore.getItemAsync("address");
+				console.log(address);
 				if (address === null) {
+					console.log("널값");
 					await postCreateAccount();
 				}
 			} else {

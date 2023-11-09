@@ -51,8 +51,8 @@ const Profile = ({ navigation }: any) => {
 	};
 
 	const createProfile = async (moveUri: string) => {
-		const walletAddress = await SecureStore.getItemAsync("walletAddress");
-		console.log("walletAddress", walletAddress);
+		const walletAddress = await SecureStore.getItemAsync("address");
+		console.log("address", walletAddress);
 		if (
 			walletAddress === null ||
 			walletAddress === undefined ||
