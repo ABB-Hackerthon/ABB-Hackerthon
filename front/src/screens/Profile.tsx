@@ -8,6 +8,10 @@ import Footer from "../components/Footer";
 import * as SecureStore from "expo-secure-store";
 
 import axios from "../utils/axios";
+import { ABB_BASE_URL } from "../constants/constants";
+import {
+	ABB_APP_KEY,
+} from "@env";
 
 import WhiteHeader from "../components/WhiteHeader";
 import SubMain from "../components/SubMain";
@@ -53,6 +57,21 @@ const Profile = ({ navigation }: any) => {
 	const createProfile = async (moveUri: string) => {
 		const walletAddress = await SecureStore.getItemAsync("address");
 		console.log("address", walletAddress);
+
+		// 1. DID account 계정 생성
+		const createDIDResponse = await axios.post(
+			`${ABB_BASE_URL}/v1/mitumt/did/create_account`,
+			{
+			  token: ABB_APP_KEY,
+			  chain: "mitumt",
+			}
+		  );
+	
+		  console.log("createDIDResponse.data.data : ", createDIDResponse.data.data);
+		  const nowDID = createDIDResponse.data.data.did;
+		  console.log("nowDID : ", nowDID);
+		  await SecureStore.setItemAsync("did", nowDID);
+
 		if (
 			walletAddress === null ||
 			walletAddress === undefined ||
@@ -132,7 +151,7 @@ const Profile = ({ navigation }: any) => {
 							{renderFront()}
 						</GestureFlipView>
 						{dogList.map((dogItem: any, index: any) => {
-							console.log("dog Item  : : : : : ", dogItem);
+							// console.log("dog Item  : : : : : ", dogItem);
 							return (
 								<View key={index} style={{ marginLeft: 10 }}>
 									<NftProfile
