@@ -80,7 +80,7 @@ const SideMenu = (props: any) => {
 						<SideMenuIcon
 							title="순찰기록"
 							imageIcon={Record}
-							movePage="Record"
+							movePage="CreateRecord"
 						/>
 					</View>
 				</View>
