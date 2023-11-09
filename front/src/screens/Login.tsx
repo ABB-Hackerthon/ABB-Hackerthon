@@ -58,8 +58,11 @@ const Login = () => {
 					data.data.data.refreshToken,
 				);
 				const address = await SecureStore.getItemAsync("address");
+
 				console.log("어드레스!:", address);
+
 				if (address === null) {
+					console.log("널값");
 					await postCreateAccount();
 				}
 			} else {
