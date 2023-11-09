@@ -11,11 +11,11 @@ const SideMenuIcon = ({ title, imageIcon, movePage }: any) => {
 	const { LoginStore } = IndexStore();
 
 	const authHandling = () => {
-		if (LoginStore.isLogged) {
-			navigation.navigate(movePage);
-		} else {
-			alert("로그인 후 이용하실 수 있는 서비스입니다.");
-		}
+		// if (LoginStore.isLogged) {
+		navigation.navigate(movePage);
+		// } else {
+		// 	alert("로그인 후 이용하실 수 있는 서비스입니다.");
+		// }
 	};
 	return (
 		<>

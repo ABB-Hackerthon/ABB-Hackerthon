@@ -12,6 +12,7 @@ import PhotoAlbumIcon from "../../assets/images/line-photo-album-icon.png";
 import WalkRootIcon from "../../assets/images/line-walk-root-icon.png";
 import TribeIcon from "../../assets/images/line-tribe-icon.png";
 import WalletIcon from "../../assets/images/wallet.png";
+import Record from "../../assets/images/record.png";
 
 const SideMenu = (props: any) => {
 	const navigation = useNavigation();
@@ -76,6 +77,11 @@ const SideMenu = (props: any) => {
 							imageIcon={TribeIcon}
 							movePage="Three"
 						></SideMenuIcon>
+						<SideMenuIcon
+							title="순찰기록"
+							imageIcon={Record}
+							movePage="Record"
+						/>
 					</View>
 				</View>
 				<View style={SideMenuLayout.authButtonWrap}>
