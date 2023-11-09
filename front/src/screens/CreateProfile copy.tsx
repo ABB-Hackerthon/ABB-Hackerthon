@@ -7,6 +7,9 @@ import {
 	TouchableOpacity,
 	Platform,
 	Alert,
+	TouchableWithoutFeedback,
+	ScrollView,
+	TouchableHighlight,
 } from "react-native";
 import ColorHeader from "../components/ColorHeader";
 import CommonLayout from "../components/CommonLayout";
@@ -24,14 +27,11 @@ import {
 	AWS_SECRET_ACCESS_KEY,
 	AWS_REGION,
 	AWS_BUCKET,
-	ABB_APP_KEY,
-	DID_PROJECT_ID
+	NFT_STORAGE_KEY,
+	POLYGON_API_KEY,
 } from "@env";
 import RNFS from "react-native-fs";
 import { ethers } from "ethers";
-import {
-	ABB_BASE_URL,
-} from "../constants/constants";
 
 import WalletLoading from "../components/WalletLoading";
 
@@ -41,7 +41,7 @@ import PhotoImg from "../../assets/images/photo-ex-img4.png";
 
 import CreateProfileLayout from "../styles/createProfileLayout";
 
-const CreateProfile = ({ navigation }: any) => {
+const CreateProfile_ = ({ navigation }: any) => {
 	const [imageUri, setImageUri] = useState<any>(null);
 	const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 	const [walletAddress, setWalletAddress] = useState<string>();
@@ -89,28 +89,6 @@ const CreateProfile = ({ navigation }: any) => {
 		region: AWS_REGION,
 	});
 
-	//template subjectkey 스위치문
-	const changeSubjectKey = (value:any) => {
-		const answer = "";
-		if(value=="dogBirth"){
-			return petBirth;
-		} else if(value=="dogBreed") {
-			return petSpecies;
-		} else if(value=="dogName") {
-			return petName;
-		} else if(value=="dogSex") {
-			return petGender;
-		} else if(value=="dogOwner") {
-			axiosApi.get("/user").then((data) => {
-				if (data.data.message === "회원 정보 조회 완료") {
-					console.log("user", data.data.data);
-					const petOwner = data.data.data.userName;
-					return petOwner;
-				}
-			});
-		}
-	}
-
 	const uploadImage = async (uri: any) => {
 		const response = await fetch(uri);
 		const blob = await response.blob();
@@ -122,106 +100,85 @@ const CreateProfile = ({ navigation }: any) => {
 			Body: blob,
 			ContentType: type,
 		};
-
+		
 		await s3.upload(params, async (err: any, data: any) => {
 			if (err) {
-				alert('s3 시스템 에러, 관리자에게 문의하세요.');
+				alert('시스템 에러, 관리자에게 문의하세요.');
 				setIsLoading(false);
 				console.log("err", err);
 				return;
 			} else {
-				const s3ImageUrl = data.Location;
-				try {
-					//1. DID account 계정 생성
-					const createDIDResponse = await axios.post(
-						`${ABB_BASE_URL}/v1/mitumt/did/create_account`, 
-						{
-							"token": ABB_APP_KEY,
-							"chain": "mitumt"
-						}
-					);
-					console.log("createDIDResponse.data.data : ", createDIDResponse.data.data);
-					const nowDID = createDIDResponse.data.data.did;
-					console.log("nowDID : ", nowDID);
-					const publickey = await SecureStore.getItemAsync("publickey");
-					console.log("publickey : ", publickey);
+				try{
+					await axios.post("https://idog.store/blockchain/uploadIpfs", {
+							img: data.Location,
+							petName: petName,
+							petSpecies: petSpecies,
+							petBirth: petBirth,
+							petGender: petGender,
+						}).then(async (data) => {
+							const nftCid = data.data.nftCid;
+							const imageOrigin = "https://ipfs.io/ipfs/" + data.data.imageCid;
+							console.log("nftCid", nftCid);
+							const overrides = {
+								gasPrice: ethers.parseUnits('9000', 'gwei')  // gasPrice 설정 (예: 100 gwei)
+							};
+	
+							const walletAddress = myWalletAddress;
+							console.log("walletAddress", walletAddress);
+							if (data.status=== 200) {
+								const tx = await mintDogTokenContract.mintDogProfile(
+									walletAddress,
+									`ipfs://${nftCid}`
+								);
+								const receipt = await tx.wait();
+								const receiptHash = receipt.hash;
+								console.log("receipt", receipt);
+	
+								const POLYGON_KEY = String(POLYGON_API_KEY);
 
-
-					//2.Issue Credential 생성 (DID에 들어가는 세부항목-조건?)
-					//2-1. tempalte 리스트 받아오기
-					const response = await axios.post(
-						`${ABB_BASE_URL}/v1/mitumt/did/templates`,
-						{
-							"token": ABB_APP_KEY,
-							"chain": "mitumt",
-							"project_id": DID_PROJECT_ID
-						}
-					);
-
-					const templateList = response.data.data;
-
-					for (let i = 0; i < templateList.length; i++) {
-						const element = templateList[i];
-						// console.log("element : ", element);
-						const templateId = element.template_id;
-						console.log("templateId : ",templateId);
-						const templateSubjectKey = element.reg_hash.subject_key;
-						const templateValue =  changeSubjectKey(templateSubjectKey);
-
-						//2-2. DID Template 를 기준으로 크리덴셜을 발행
-						const response = await axios.post(
-							`${ABB_BASE_URL}/v1/mitumt/did/issue`,
-							{
-								"token": ABB_APP_KEY,
-								"chain": "mitumt",
-								"did": nowDID,
-								"template_id": templateId,
-								"subject": {
-									"key": templateSubjectKey,
-									"value": templateValue
-								},
-								"validfrom": "2023-11-09T00:00:00.000Z",
-								"validuntil": "2099-12-31T23:59:59.999Z"
+								try{
+									await axios
+										.get(
+											`https://api.polygonscan.com/api?module=account&action=tokennfttx&contractaddress=${process.env.MINT_DOG_TOKEN_ADDRESS}&address=${walletAddress}&startblock=0&endblock=99999999&page=1&offset=100&sort=asc&apikey=${POLYGON_KEY}`,
+										)
+										.then(async (data) => {
+											console.log("data", data);
+											if (data.status === 200) {
+												console.log("polygon api", data);
+												await axiosApi.post("/dog", {
+													dogName: petName,
+													dogBreed: petSpecies,
+													dogBirthDate: petBirth,
+													dogSex: petGender,
+													dogHash: receiptHash,
+													dogImg: String(imageOrigin),
+												}).then(async (data) => {
+													if(data.data.message === "강아지 프로필 등록 완료"){
+														Alert.alert('프로필 생성이 완료되었습니다.', '외부 디지털 지갑에서 확인하려면 최대 1일까지도 소요될 수 있습니다.');
+														await setIsLoading(false);
+														await navigation.replace("Profile");
+													}else{
+														await setIsLoading(false);
+														alert('프로필 생성 실패, 관리자에게 문의하세요.');
+													}
+												});
+											}else{
+												alert("프로필 생성 실패, 관리자에게 문의하세요.");
+												setIsLoading(false);
+											}
+										});
+								}catch(err){
+									alert('프로필 생성 실패, 관리자에게 문의하세요.');
+									setIsLoading(false);
 								}
-
-						);
-					}
-
-					//3. DB에 강아지 정보 저장
-					const idogResponse = await axiosApi.post(
-						`/dog`,
-						{
-							dogName: petName,
-							dogBreed: petSpecies,
-							dogBirthDate: petBirth,
-							dogSex: petGender,
-							dogHash: "",
-							dogImg: String(s3ImageUrl),
-						}
-					);
-
-					if(idogResponse.data.message === "강아지 프로필 등록 완료"){
-						Alert.alert('프로필 생성이 완료되었습니다.');
-						await setIsLoading(false);
-						await navigation.replace("Profile");
-					}else{
-						await setIsLoading(false);
-						alert('프로필 생성 실패, 관리자에게 문의하세요.');
-					}
-				
-
-					// const issueResponse = await axios.post(
-					// 	`${ABB_BASE_URL}/v1/mitumt/did/templates`,
-					// 	{
-					// 		"token": ABB_APP_KEY,
-					// 		"chain":"mitumt",
-					// 		"project_id": DID_PROJECT_ID,
-					// 	}
-					// )
-
-
-				} catch (error) {
-					console.log(error);
+							}else{
+								alert('프로필 생성 실패, 관리자에게 문의하세요.');
+								setIsLoading(false);
+							}
+						});
+				}catch(err){
+					alert('프로필 생성 실패, 관리자에게 문의하세요.');
+					setIsLoading(false);
 				}
 			}
 		});
@@ -276,11 +233,11 @@ const CreateProfile = ({ navigation }: any) => {
 
 	useEffect(() => {
 		const getWalletInfoFromStore = async () => {
-			const walletAddress = await SecureStore.getItemAsync("address");
+			const walletAddress = await SecureStore.getItemAsync("walletAddress");
 			if (walletAddress) {
 				setWalletAddress(walletAddress);
 			}
-			const privateKey = await SecureStore.getItemAsync("privatekey");
+			const privateKey = await SecureStore.getItemAsync("privateKey");
 			if (privateKey) {
 				setWalletPrivateKey(privateKey);
 			}
@@ -297,7 +254,7 @@ const CreateProfile = ({ navigation }: any) => {
 		};
 
 		const getWalletAddress = async () => {
-			const myWalletAddress = await SecureStore.getItemAsync("address");
+			const myWalletAddress = await SecureStore.getItemAsync("walletAddress");
 			setMyWalletAddress(String(myWalletAddress));
 		};
 
@@ -502,4 +459,4 @@ const CreateProfile = ({ navigation }: any) => {
 	);
 };
 
-export default CreateProfile;
+export default CreateProfile_;
