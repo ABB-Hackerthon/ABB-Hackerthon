@@ -17,6 +17,7 @@ const Record = () => {
 	const petrolList = [
 		{
 			patrolDiaryInfo: {
+				patrolNo: 1,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
@@ -24,6 +25,7 @@ const Record = () => {
 		},
 		{
 			patrolDiaryInfo: {
+				patrolNo: 2,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
@@ -31,6 +33,7 @@ const Record = () => {
 		},
 		{
 			patrolDiaryInfo: {
+				patrolNo: 3,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
@@ -38,6 +41,7 @@ const Record = () => {
 		},
 		{
 			patrolDiaryInfo: {
+				patrolNo: 4,
 				userName: "userName",
 				patrolLogAddress: "patrolLogAddress",
 				patrolDate: "patrolDate",
