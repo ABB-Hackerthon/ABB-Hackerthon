@@ -32,6 +32,8 @@ import WalkStatistics from "./src/components/WalkStatistics";
 import ShowPrivate from "./src/screens/ShowPrivate";
 // import SplashScreen from "react-native-splash-screen";
 import WalletCardList from "./src/screens/WalletCardList";
+import Record from "./src/screens/Record";
+import CreateRecord from "./src/screens/CreateRecord";
 
 LogBox.ignoreAllLogs();
 
@@ -85,6 +87,8 @@ const App = () => {
 					<Stack.Screen name="ChoiceDog" component={ChoiceDog} />
 					<Stack.Screen name="WalkStatistics" component={WalkStatistics} />
 					<Stack.Screen name="WalletCardList" component={WalletCardList} />
+					<Stack.Screen name="Record" component={Record} />
+					<Stack.Screen name="CreateRecord" component={CreateRecord} />
 				</Stack.Navigator>
 			</NavigationContainer>
 		</>

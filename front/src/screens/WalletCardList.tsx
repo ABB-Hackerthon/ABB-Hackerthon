@@ -28,6 +28,26 @@ const WAlletCardList = () => {
 		발행일: "2021-08-01",
 		쿠폰번호: "1234-1234-1234-1234",
 	};
+	const wallet2 = {
+		분류: "식품",
+		id: 1,
+		name: "쿠폰이름221",
+		유효기간: "2021-09-01",
+		품목: "품목입니다.",
+		할인율: "40%",
+		발행일: "2021-08-01",
+		쿠폰번호: "1234-1234-1234-1234",
+	};
+	const wallet3 = {
+		분류: "식품",
+		id: 1,
+		name: "쿠폰이름1",
+		유효기간: "2021-09-01",
+		품목: "품목입니다.",
+		할인율: "50%",
+		발행일: "2021-08-01",
+		쿠폰번호: "1234-1234-1234-1234",
+	};
 
 	const textToImg = {
 		식품: {
@@ -36,8 +56,7 @@ const WAlletCardList = () => {
 		},
 	};
 
-	const [walletList, setWalletList] = useState([wallet1, wallet1, wallet1]);
-
+	const [walletList, setWalletList] = useState([wallet1, wallet2, wallet3]);
 	const [selectedWallet, setSelectedWallet] = useState(null);
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -86,25 +105,29 @@ const WAlletCardList = () => {
 								? { uri: img }
 								: img; // 로컬 이미지일 경우 require(img)를 사용해야 합니다.
 						return (
-							<TouchableOpacity
-								key={index}
-								style={styles.wallet}
-								onPress={() => {
-									openModal(wallet);
-								}}
-							>
-								<View style={[styles.imgcontainer, { backgroundColor: color }]}>
-									<Image style={styles.couponImg} source={img}></Image>
-								</View>
-								<View style={styles.wallettextcol}>
-									<Text>{wallet.name}</Text>
-									<Text>유효기간: {wallet.유효기간}</Text>
-								</View>
-								<Text>품목: {wallet.품목}</Text>
-								<View>
-									<Text>{wallet.할인율}</Text>
-								</View>
-							</TouchableOpacity>
+							<>
+								<TouchableOpacity
+									key={index}
+									style={styles.wallet}
+									onPress={() => {
+										openModal(wallet);
+									}}
+								>
+									<View
+										style={[styles.imgcontainer, { backgroundColor: color }]}
+									>
+										<Image style={styles.couponImg} source={img}></Image>
+									</View>
+									<View style={styles.wallettextcol}>
+										<Text>{wallet.name}</Text>
+										<Text>유효기간: {wallet.유효기간}</Text>
+									</View>
+									<Text>품목: {wallet.품목}</Text>
+									<View>
+										<Text>{wallet.할인율}</Text>
+									</View>
+								</TouchableOpacity>
+							</>
 						);
 					})}
 				</View>
@@ -241,6 +264,7 @@ const styles = StyleSheet.create({
 		color: "white",
 		fontWeight: "bold",
 		textAlign: "center",
+		width: 30,
 	},
 	modalText: {
 		marginBottom: 15,
