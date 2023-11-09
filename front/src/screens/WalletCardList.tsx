@@ -25,22 +25,18 @@ import { LinearGradient } from "react-native-linear-gradient";
 import { useEffect, useState } from "react";
 import QRCode from "react-native-qrcode-svg";
 import axios from "axios";
+import Icon from "react-native-vector-icons/FontAwesome";
+
 type Wallet = {
 	name: string;
 	period: string;
 	contractAddress: string;
 	discount: string;
 	balance: number;
+	recognize: string;
 };
 
 const WAlletCardList = () => {
-	const textToImg = {
-		식품: {
-			img: require("../../assets/images/food.png"),
-			color: "#FD807E",
-		},
-	};
-
 	const [walletList, setWalletList] = useState<Wallet[]>([]);
 	const [selectedWallet, setSelectedWallet] = useState(null);
 	const [modalVisible, setModalVisible] = useState(false);
@@ -75,21 +71,24 @@ const WAlletCardList = () => {
 				);
 
 				let balance = balanceResponse.data.data.balance;
-				let name, discount, period;
+				let name, discount, period, recognize;
 
 				if (contractAddress === CONTRACT_ADDRESS_COFFEE && balance > 0) {
-					name = "커피";
+					recognize = "커피";
+					name = "커피 할인";
 					discount = "5%";
 					period = "2023-12-11";
 				} else if (
 					contractAddress === CONTRACT_ADDRESS_DOG_FOOD &&
 					balance > 0
 				) {
-					name = "사료";
+					recognize = "사료";
+					name = "강아지 사료 할인";
 					discount = "10%";
 					period = "2023-12-11";
 				} else if (contractAddress === CONTRACT_ADDRESS_GAS && balance > 0) {
-					name = "가스";
+					recognize = "주유소";
+					name = "주유소 할인";
 					discount = "5%";
 					period = "2023-12-11";
 				} else {
@@ -97,6 +96,7 @@ const WAlletCardList = () => {
 				}
 
 				newWalletList.push({
+					recognize,
 					name,
 					period,
 					contractAddress,
@@ -144,21 +144,21 @@ const WAlletCardList = () => {
 
 				<View style={styles.walletList}>
 					<View style={styles.walletTable}>
-						<Text> 테이블에 넣어야 할 것 </Text>
+						<Text> 아이템 리스트 </Text>
 					</View>
 					{walletList?.map((wallet, index) => {
-						const categoryData = textToImg[wallet.분류] || {
-							img: "",
-							color: "",
-						};
-						const img = categoryData.img;
-						const color = categoryData.color;
+						// const categoryData = textToImg[wallet.recognize] || {
+						// 	img: "",
+						// 	color: "",
+						// };
+						// const img = categoryData.img;
+						// const color = categoryData.color;
 
-						// Image 컴포넌트에 이미지 소스를 올바르게 전달
-						const imageSource =
-							typeof img === "string" && img.startsWith("http")
-								? { uri: img }
-								: img; // 로컬 이미지일 경우 require(img)를 사용해야 합니다.
+						// // Image 컴포넌트에 이미지 소스를 올바르게 전달
+						// const imageSource =
+						// 	typeof img === "string" && img.startsWith("http")
+						// 		? { uri: img }
+						// 		: img; // 로컬 이미지일 경우 require(img)를 사용해야 합니다.
 						return (
 							<>
 								<TouchableOpacity
@@ -168,17 +168,17 @@ const WAlletCardList = () => {
 										openModal(wallet);
 									}}
 								>
-									<View
+									{/* <View
 										style={[styles.imgcontainer, { backgroundColor: color }]}
 									>
-										<Image style={styles.couponImg} source={img}></Image>
-									</View>
+										<Image style={styles.couponImg} source={img}></Image> */}
+									{/* </View> */}
 									<View style={styles.wallettextcol}>
 										<Text>{wallet.name}</Text>
 										<Text>유효기간: {wallet.period}</Text>
 										<Text>저장된 갯수: {wallet.balance}</Text>
 									</View>
-									<Text>품목: {wallet.name}</Text>
+									<Text>품목: {wallet.recognize}</Text>
 									<View>
 										<Text>{wallet.discount}</Text>
 									</View>
