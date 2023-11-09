@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	View,
 	Text,
@@ -12,7 +12,7 @@ import CommonLayout from "../components/CommonLayout";
 import ColorHeader from "../components/ColorHeader";
 import Footer from "../components/Footer";
 import * as SecureStore from "expo-secure-store";
-
+import { ABB_APP_KEY } from "@env";
 import * as ImagePicker from "expo-image-picker";
 import { S3 } from "aws-sdk";
 import {
@@ -20,22 +20,35 @@ import {
 	AWS_SECRET_ACCESS_KEY,
 	AWS_REGION,
 	AWS_BUCKET,
+	ADDRESS,
+	PRIVATE_KEY,
+	CONT_ADDR,
 } from "@env";
 import axios from "../utils/axios";
-
+import { ABB_BASE_URL } from "../constants/constants";
 import AddPlusIcon from "../../assets/images/add-plus-icon.png";
 
 import CreateFeedLayout from "../styles/createFeedLayout";
-import { set } from "mobx";
 import GeoLocationAPI from "../components/GeoLocationAPI";
+import Axios from "axios";
 
 const CreateFeed = ({ navigation, route }: any) => {
 	// const selectedId = route.params.selectedId;
 	// img uri 저장
 	const [imageUri, setImage] = useState<string | null>(null);
 	const [comment, setComment] = useState<string | null>(null);
+	const [title, setTitle] = useState<string | null>(null);
 	const [clickButton, setClickButton] = useState<boolean>(false);
 	const [address, setAddress] = useState<string>("");
+	const [receiver, setReceiver] = useState<any>("");
+
+	useEffect(() => {
+		const getReceiver = async () => {
+			const receiver = await SecureStore.getItemAsync("address");
+			setReceiver(receiver);
+		};
+		getReceiver();
+	}, []);
 
 	// s3 클라이언트 초기화
 	const s3 = new S3({
@@ -111,14 +124,34 @@ const CreateFeed = ({ navigation, route }: any) => {
 		}
 	};
 
-	const submitFeed = () => {
+	const submitFeed = async () => {
 		if (clickButton) return;
 		if (imageUri === null) {
 			alert("이미지를 선택해주세요.");
 			return;
 		}
 		setClickButton(true);
-		uploadImage(imageUri);
+
+		try {
+			const data = await Axios.post(
+				`${ABB_BASE_URL}/v1/mitumt/token/transfer`,
+				{
+					token: ABB_APP_KEY,
+					chain: "mitumt",
+					cont_addr: CONT_ADDR,
+					sender: ADDRESS,
+					sender_pkey: PRIVATE_KEY,
+					receiver: receiver,
+					amount: 1,
+				},
+			);
+			console.log("data : ", data);
+			alert("성공적으로 등록되었습니다.");
+		} catch {
+			console.log("error");
+		}
+		navigation.goBack();
+		// uploadImage(imageUri);
 	};
 
 	return (
@@ -153,9 +186,9 @@ const CreateFeed = ({ navigation, route }: any) => {
 				<View>
 					<TextInput
 						style={CreateFeedLayout.createDescWrap2}
-						value={comment}
+						value={title}
 						placeholder="제목을 입력해주세요"
-						onChangeText={(text) => setComment(text)}
+						onChangeText={(text) => setTitle(text)}
 					/>
 				</View>
 				<View>
@@ -171,9 +204,7 @@ const CreateFeed = ({ navigation, route }: any) => {
 				<View style={CreateFeedLayout.buttonWrap}>
 					<TouchableOpacity activeOpacity={0.7} onPress={submitFeed}>
 						<View style={CreateFeedLayout.submitButton}>
-							<Text style={CreateFeedLayout.submitButtonText}>
-								신고 등록하기
-							</Text>
+							<Text style={CreateFeedLayout.submitButtonText}>신고하기</Text>
 						</View>
 					</TouchableOpacity>
 					<TouchableOpacity

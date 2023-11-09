@@ -58,7 +58,11 @@ const Login = () => {
 					data.data.data.refreshToken,
 				);
 				const address = await SecureStore.getItemAsync("address");
+				const privatekey = await SecureStore.getItemAsync("privatekey");
+				const publickey = await SecureStore.getItemAsync("publickey");
 				console.log("address : ", address);
+				console.log("privatekey : ", privatekey);
+				console.log("publickey : ", publickey);
 				if (address === null) {
 					await postCreateAccount();
 				}
