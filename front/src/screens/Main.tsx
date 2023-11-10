@@ -42,7 +42,7 @@ const Main = ({ navigation }: any) => {
 						<Text style={MainLayout.walkBoldText}>IDog</Text> 와 함께
 					</Text>
 					<Text style={MainLayout.walkMainDesc}>
-						IDog은 내 반려견의 프로필을 NFT화하여{"\n"}
+						IDog은 내 반려견의 프로필을 DID로 생성하여{"\n"}
 						사육방지를 조장하고 반려견과의 추억을 모으는 플랫폼입니다.
 					</Text>
 				</View>

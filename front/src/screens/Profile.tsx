@@ -98,13 +98,13 @@ const Profile = ({ navigation }: any) => {
 			<CommonLayout>
 				<WhiteHeader title="프로필 만들기" />
 				<SubMain
-					subTitle="NFT 프로필"
-					mainTitle={`OOO은 내 반려견의\n프로필을 NFT로 만들어\n평생 소장 프로필을 만듭니다.`}
+					subTitle="DID 프로필"
+					mainTitle={`IDog는 내 반려견의\n프로필을 DID로 만들어\n평생 소장 프로필을 만듭니다.`}
 					bgImg={SubMainImg}
 					desc="프로필 만들기"
 				/>
 				<View style={ProfileLayout.profileWrap}>
-					<Text style={ProfileLayout.subTitle}>NFT Service</Text>
+					<Text style={ProfileLayout.subTitle}>DID Service</Text>
 					<View style={ProfileLayout.titleWrap}>
 						<Text style={ProfileLayout.mainTitle}>
 							더 쉽고 간편한{"\n"}반려견 소유 증명
@@ -120,7 +120,7 @@ const Profile = ({ navigation }: any) => {
 							onPress={() => createProfile("CreateProfile")}
 						>
 							<ProfileItem
-								desc="평생 소장하는 내 반려견 NFT 프로필"
+								desc="평생 소장하는 내 반려견 DID 프로필"
 								title="프로필 만들기"
 								thumbnail={NftCardIcon}
 							/>
@@ -142,7 +142,7 @@ const Profile = ({ navigation }: any) => {
 				</View>
 				<View style={ProfileLayout.myNftWrap}>
 					<View style={ProfileLayout.myNftTitleWrap}>
-						<Text style={ProfileLayout.myNftTitle}>내 보유 NFT</Text>
+						<Text style={ProfileLayout.myNftTitle}>내 보유 DID</Text>
 						<Text style={ProfileLayout.myNftMore}>전체보기</Text>
 					</View>
 					<ScrollView horizontal={true} style={ProfileLayout.nftList}>

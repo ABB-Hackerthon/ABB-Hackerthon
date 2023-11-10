@@ -107,9 +107,9 @@ const EditProfile = ({ navigation, route }: any) => {
 			<CommonLayout>
 				<ColorHeader title="반려견 상세보기" />
 				<View style={CreateProfileLayout.createProfileTitleWrap}>
-					<Text style={CreateProfileLayout.createProfileDesc}>반려견 NFT</Text>
+					<Text style={CreateProfileLayout.createProfileDesc}>반려견 DID</Text>
 					<Text style={CreateProfileLayout.createProfileTitle}>
-						내 NFT에 저장하는,{"\n"}
+						내 DID에 저장하는,{"\n"}
 						나의 반려견
 					</Text>
 				</View>

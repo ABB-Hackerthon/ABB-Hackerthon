@@ -78,7 +78,7 @@ const SideMenu = (props: any) => {
 							movePage="Three"
 						></SideMenuIcon>
 						<SideMenuIcon
-							title="순찰기록"
+							title="안전신문고"
 							imageIcon={Record}
 							movePage="CreateRecord"
 						/>
