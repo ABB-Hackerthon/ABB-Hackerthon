@@ -28,5 +28,13 @@ declare module "@env" {
 	export const POLYGON_API_KEY: string;
 	export const CLIENT_PRIVATE_KEY: string;
 	export const ABB_APP_KEY: string;
+	export const PRIVATE_KEY: string;
+	export const ADDRESS: string;
+	export const PUBLIC_KEY: string;
+	export const CONT_ADDR: string;
 	export const DID_PROJECT_ID: string;
+	export const GEOCODING_API_KEY: string;
+	export const CONTRACT_ADDRESS_COFFEE: string;
+	export const CONTRACT_ADDRESS_GAS: string;
+	export const CONTRACT_ADDRESS_DOG_FOOD: string;
 }

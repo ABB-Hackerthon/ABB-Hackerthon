@@ -5,14 +5,14 @@ import SideMenuIcon from "./SideMenuIcon";
 import SideMenuLayout from "../styles/sideMenuLayout";
 import LoginStore from "../stores/LoginStore";
 import Login from "../screens/Login";
-
 import CloseIcon from "../../assets/images/close-icon.png";
-import NftCardIcon from "../../assets/images/line-nft-card-icon.png";
+import DIDIcon from "../../assets/images/DID.png";
 import AdoptionIcon from "../../assets/images/line-adoption-icon.png";
 import PhotoAlbumIcon from "../../assets/images/line-photo-album-icon.png";
-import MedicalIcon from "../../assets/images/line-medical-icon.png";
 import WalkRootIcon from "../../assets/images/line-walk-root-icon.png";
 import TribeIcon from "../../assets/images/line-tribe-icon.png";
+import WalletIcon from "../../assets/images/wallet.png";
+import Record from "../../assets/images/record.png";
 
 const SideMenu = (props: any) => {
 	const navigation = useNavigation();
@@ -41,18 +41,18 @@ const SideMenu = (props: any) => {
 						반려견 <Text style={SideMenuLayout.boldNavTitle}>소유증명</Text>
 					</Text>
 					<Text style={SideMenuLayout.navDesc}>
-						간편한 NFT 소유증명 및 이전
+						간편한 DID 소유증명 및 이전
 					</Text>
 					<View style={SideMenuLayout.navFlex}>
 						<SideMenuIcon
 							title="프로필 등록"
-							imageIcon={NftCardIcon}
+							imageIcon={DIDIcon}
 							movePage="Profile"
 						></SideMenuIcon>
 						<SideMenuIcon
-							title="반려견 입양"
-							imageIcon={AdoptionIcon}
-							movePage="Adoption"
+							title="내 지갑"
+							imageIcon={WalletIcon}
+							movePage="WalletCardList"
 						></SideMenuIcon>
 					</View>
 					<View style={{ marginTop: 25 }}></View>
@@ -77,6 +77,11 @@ const SideMenu = (props: any) => {
 							imageIcon={TribeIcon}
 							movePage="Three"
 						></SideMenuIcon>
+						<SideMenuIcon
+							title="안전신문고"
+							imageIcon={Record}
+							movePage="CreateRecord"
+						/>
 					</View>
 				</View>
 				<View style={SideMenuLayout.authButtonWrap}>

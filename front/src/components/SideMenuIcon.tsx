@@ -33,10 +33,13 @@ const styles = StyleSheet.create({
 	iconWrap: {
 		marginHorizontal: responsiveWidth(4),
 		marginTop: 25,
+		
+
 	},
 	sideMenuIcon: {
 		width: 44,
 		height: 44,
+		resizeMode: "contain",
 	},
 	text: {
 		fontSize: 10,

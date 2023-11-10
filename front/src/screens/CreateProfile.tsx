@@ -25,13 +25,11 @@ import {
 	AWS_REGION,
 	AWS_BUCKET,
 	ABB_APP_KEY,
-	DID_PROJECT_ID
+	DID_PROJECT_ID,
 } from "@env";
 import RNFS from "react-native-fs";
 import { ethers } from "ethers";
-import {
-	ABB_BASE_URL,
-} from "../constants/constants";
+import { ABB_BASE_URL } from "../constants/constants";
 
 import WalletLoading from "../components/WalletLoading";
 
@@ -56,6 +54,7 @@ const CreateProfile = ({ navigation }: any) => {
 			"-" +
 			("0" + new Date().getDate()).slice(-2),
 	);
+	const [secretkey, setSecretkey] = useState<any>(null);
 	const [speciesList, setSpeciesList] = useState<any[]>([]);
 	const [hashId, setHashId] = useState<any>();
 	const [isLoading, setIsLoading] = useState<Boolean>(false);
@@ -90,148 +89,131 @@ const CreateProfile = ({ navigation }: any) => {
 	});
 
 	//template subjectkey 스위치문
-	const changeSubjectKey = (value:any) => {
-		const answer = "";
-		if(value=="dogBirth"){
-			return petBirth;
-		} else if(value=="dogBreed") {
-			return petSpecies;
-		} else if(value=="dogName") {
-			return petName;
-		} else if(value=="dogSex") {
-			return petGender;
-		} else if(value=="dogOwner") {
-			axiosApi.get("/user").then((data) => {
-				if (data.data.message === "회원 정보 조회 완료") {
-					console.log("user", data.data.data);
-					const petOwner = data.data.data.userName;
-					return petOwner;
-				}
-			});
-		}
-	}
+	
+	// useEffect(() => {
+	// 	getSecure();
+	// }, []);
 
-	const uploadImage = async (uri: any) => {
+	// const getSecure = async () => {
+	// 	const secret = await SecureStore.getItemAsync(
+	// 		"privatekey",
+	// 	);
+	// 	setSecretkey(secret);
+	// }
+
+	const uploadImage = async (uri) => {
 		const response = await fetch(uri);
 		const blob = await response.blob();
-		const filename = await uri.split("/").pop();
-		const type = await blob.type;
+		const filename = uri.split("/").pop();
+		const type = blob.type;
 		const params = {
-			Bucket: AWS_BUCKET,
-			Key: filename,
-			Body: blob,
-			ContentType: type,
+		  Bucket: AWS_BUCKET,
+		  Key: filename,
+		  Body: blob,
+		  ContentType: type,
 		};
-
-		await s3.upload(params, async (err: any, data: any) => {
-			if (err) {
-				alert('s3 시스템 에러, 관리자에게 문의하세요.');
-				setIsLoading(false);
-				console.log("err", err);
-				return;
-			} else {
-				const s3ImageUrl = data.Location;
-				try {
-					//1. DID account 계정 생성
-					const createDIDResponse = await axios.post(
-						`${ABB_BASE_URL}/v1/mitumt/did/create_account`, 
-						{
-							"token": ABB_APP_KEY,
-							"chain": "mitumt"
-						}
-					);
-					console.log("createDIDResponse.data.data : ", createDIDResponse.data.data);
-					const nowDID = createDIDResponse.data.data.did;
-					console.log("nowDID : ", nowDID);
-					const publickey = await SecureStore.getItemAsync("publickey");
-					console.log("publickey : ", publickey);
-
-
-					//2.Issue Credential 생성 (DID에 들어가는 세부항목-조건?)
-					//2-1. tempalte 리스트 받아오기
-					const response = await axios.post(
-						`${ABB_BASE_URL}/v1/mitumt/did/templates`,
-						{
-							"token": ABB_APP_KEY,
-							"chain": "mitumt",
-							"project_id": DID_PROJECT_ID
-						}
-					);
-
-					const templateList = response.data.data;
-
-					for (let i = 0; i < templateList.length; i++) {
-						const element = templateList[i];
-						// console.log("element : ", element);
-						const templateId = element.template_id;
-						console.log("templateId : ",templateId);
-						const templateSubjectKey = element.reg_hash.subject_key;
-						const templateValue =  changeSubjectKey(templateSubjectKey);
-
-						//2-2. DID Template 를 기준으로 크리덴셜을 발행
-						const response = await axios.post(
-							`${ABB_BASE_URL}/v1/mitumt/did/issue`,
-							{
-								"token": ABB_APP_KEY,
-								"chain": "mitumt",
-								"did": nowDID,
-								"template_id": templateId,
-								"subject": {
-									"key": templateSubjectKey,
-									"value": templateValue
-								},
-								"validfrom": "2023-11-09T00:00:00.000Z",
-								"validuntil": "2099-12-31T23:59:59.999Z"
-								}
-
-						);
+	  
+		s3.upload(params, async (err, data) => {
+		  if (err) {
+			alert("s3 시스템 에러, 관리자에게 문의하세요.");
+			setIsLoading(false);
+			console.log("err", err);
+			return;
+		  }
+	  
+		  const s3ImageUrl = data.Location;
+		  try {
+			// 2. Issue Credential 생성 (DID에 들어가는 세부항목-조건?)
+			// 2-1. template 리스트 받아오기
+			const nowDID = await SecureStore.getItemAsync("did");
+			const response = await axios.post(
+			  `${ABB_BASE_URL}/v1/mitumt/did/templates`,
+			  {
+				token: ABB_APP_KEY,
+				chain: "mitumt",
+				project_id: DID_PROJECT_ID,
+			  }
+			);
+	  
+			const templateList = response.data.data;
+			let templateValue;
+	  
+			for (const element of templateList) {
+			  console.log("element : ", element);
+			  const templateId = element.template_id;
+			  console.log("templateId : ", templateId);
+			  const value = element.subject_key;
+	  
+			  if (value === "dogBirth") {
+				templateValue = petBirth;
+			  } else if (value === "dogBreed") {
+				templateValue = petSpecies;
+			  } else if (value === "dogName") {
+				templateValue = petName;
+			  } else if (value === "dogSex") {
+				templateValue = petGender;
+			  } else if (value === "dogOwner") {
+				await axiosApi.get("/user").then((data) => {
+				  if (data.data.message === "회원 정보 조회 완료") {
+					console.log("user", data.data.data);
+					console.log("userName", data.data.data.userName);
+					templateValue = data.data.data.userName;
+				  }
+				}).catch((error) => {
+				  console.log("현재 에러상황발생", error);
+				});
+			  }
+	  
+			  console.log("templateSubjectKey : ", value);
+			  console.log("templateValue : ", templateValue);
+	  
+			  // 2-2. DID Template 를 기준으로 크리덴셜을 발행
+			  const issueResponse = await axios.post(
+				`${ABB_BASE_URL}/v1/mitumt/did/issue`,
+					{
+						"token": ABB_APP_KEY,
+						"chain": "mitumt",
+						"did": nowDID,
+						"template_id": templateId,
+						"subject": {
+							"key": value,
+							"value": templateValue
+						},
+						"validfrom": "2023-11-01T00:00:00.000Z",
+						"validuntil": "2023-12-31T23:59:59.999Z"
 					}
+			  );
 
-					//3. DB에 강아지 정보 저장
-					const idogResponse = await axiosApi.post(
-						`/dog`,
-						{
-							dogName: petName,
-							dogBreed: petSpecies,
-							dogBirthDate: petBirth,
-							dogSex: petGender,
-							dogHash: "",
-							dogImg: String(s3ImageUrl),
-						}
-					);
-
-					if(idogResponse.data.message === "강아지 프로필 등록 완료"){
-						Alert.alert('프로필 생성이 완료되었습니다.');
-						await setIsLoading(false);
-						await navigation.replace("Profile");
-					}else{
-						await setIsLoading(false);
-						alert('프로필 생성 실패, 관리자에게 문의하세요.');
-					}
-				
-
-					// const issueResponse = await axios.post(
-					// 	`${ABB_BASE_URL}/v1/mitumt/did/templates`,
-					// 	{
-					// 		"token": ABB_APP_KEY,
-					// 		"chain":"mitumt",
-					// 		"project_id": DID_PROJECT_ID,
-					// 	}
-					// )
-
-
-				} catch (error) {
-					console.log(error);
-				}
+			  console.log("issueResponse : ",issueResponse);
 			}
+	  
+			// 3. DB에 강아지 정보 저장
+			const idogResponse = await axiosApi.post(`/dog`, {
+			  dogName: petName,
+			  dogBreed: petSpecies,
+			  dogBirthDate: petBirth,
+			  dogSex: petGender,
+			  dogHash: "",
+			  dogImg: String(s3ImageUrl),
+			});
+	  
+			if (idogResponse.data.message === "강아지 프로필 등록 완료") {
+			  Alert.alert("프로필 생성이 완료되었습니다.");
+			  setIsLoading(false);
+			  navigation.replace("Profile");
+			} else {
+			  setIsLoading(false);
+			  alert("프로필 생성 실패, 관리자에게 문의하세요.");
+			}
+		  } catch (error) {
+			console.log(error);
+		  }
 		});
-	};
-
-
+	  };
+	  
 	const uploadIpfs = async () => {
 		try {
 			await setIsLoading(true);
-
 			await uploadImage(imageUri);
 		} catch (err) {
 			await setIsLoading(false);
@@ -316,9 +298,9 @@ const CreateProfile = ({ navigation }: any) => {
 			<CommonLayout>
 				<ColorHeader title="프로필 작성" />
 				<View style={CreateProfileLayout.createProfileTitleWrap}>
-					<Text style={CreateProfileLayout.createProfileDesc}>반려견 NFT</Text>
+					<Text style={CreateProfileLayout.createProfileDesc}>반려견 DID</Text>
 					<Text style={CreateProfileLayout.createProfileTitle}>
-						내 NFT에 저장하는,{"\n"}
+						내 DID에 저장하는,{"\n"}
 						나의 반려견
 					</Text>
 				</View>
@@ -417,11 +399,10 @@ const CreateProfile = ({ navigation }: any) => {
 						onCancel={hideDatePicker}
 					/>
 				</View>
-				{
-					dropdownVIsible ?
+				{dropdownVIsible ? (
 					<>
-						<View style={{marginTop:33}}></View>
-							<View style={CreateProfileLayout.formButtonWrap}>
+						<View style={{ marginTop: 33 }}></View>
+						<View style={CreateProfileLayout.formButtonWrap}>
 							{isLoading ? (
 								<TouchableOpacity activeOpacity={0.7}>
 									<View style={CreateProfileLayout.submitInactiveButton}>
@@ -450,47 +431,51 @@ const CreateProfile = ({ navigation }: any) => {
 								onPress={() => navigation.navigate("Profile")}
 							>
 								<View style={CreateProfileLayout.cancelButton}>
-									<Text style={CreateProfileLayout.cancelButtonText}>취소하기</Text>
+									<Text style={CreateProfileLayout.cancelButtonText}>
+										취소하기
+									</Text>
 								</View>
 							</TouchableOpacity>
 						</View>
 					</>
-					:
+				) : (
 					<View style={CreateProfileLayout.formButtonWrap}>
-					{isLoading ? (
-						<TouchableOpacity activeOpacity={0.7}>
-							<View style={CreateProfileLayout.submitInactiveButton}>
-								<Text style={CreateProfileLayout.submitInactiveButtonText}>
-									프로필 생성하기
-								</Text>
-							</View>
-						</TouchableOpacity>
-					) : (
+						{isLoading ? (
+							<TouchableOpacity activeOpacity={0.7}>
+								<View style={CreateProfileLayout.submitInactiveButton}>
+									<Text style={CreateProfileLayout.submitInactiveButtonText}>
+										프로필 생성하기
+									</Text>
+								</View>
+							</TouchableOpacity>
+						) : (
+							<TouchableOpacity
+								activeOpacity={0.7}
+								onPress={() => {
+									uploadIpfs();
+								}}
+							>
+								<View style={CreateProfileLayout.submitButton}>
+									<Text style={CreateProfileLayout.submitButtonText}>
+										프로필 생성하기
+									</Text>
+								</View>
+							</TouchableOpacity>
+						)}
+
 						<TouchableOpacity
 							activeOpacity={0.7}
-							onPress={() => {
-								uploadIpfs();
-							}}
+							onPress={() => navigation.navigate("Profile")}
 						>
-							<View style={CreateProfileLayout.submitButton}>
-								<Text style={CreateProfileLayout.submitButtonText}>
-									프로필 생성하기
+							<View style={CreateProfileLayout.cancelButton}>
+								<Text style={CreateProfileLayout.cancelButtonText}>
+									취소하기
 								</Text>
 							</View>
 						</TouchableOpacity>
-					)}
+					</View>
+				)}
 
-					<TouchableOpacity
-						activeOpacity={0.7}
-						onPress={() => navigation.navigate("Profile")}
-					>
-						<View style={CreateProfileLayout.cancelButton}>
-							<Text style={CreateProfileLayout.cancelButtonText}>취소하기</Text>
-						</View>
-					</TouchableOpacity>
-				</View>
-				}
-				
 				<Footer />
 			</CommonLayout>
 			{isLoading ? (

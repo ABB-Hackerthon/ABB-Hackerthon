@@ -8,6 +8,10 @@ import Footer from "../components/Footer";
 import * as SecureStore from "expo-secure-store";
 
 import axios from "../utils/axios";
+import { ABB_BASE_URL } from "../constants/constants";
+import {
+	ABB_APP_KEY,
+} from "@env";
 
 import WhiteHeader from "../components/WhiteHeader";
 import SubMain from "../components/SubMain";
@@ -53,6 +57,21 @@ const Profile = ({ navigation }: any) => {
 	const createProfile = async (moveUri: string) => {
 		const walletAddress = await SecureStore.getItemAsync("address");
 		console.log("address", walletAddress);
+
+		// 1. DID account 계정 생성
+		const createDIDResponse = await axios.post(
+			`${ABB_BASE_URL}/v1/mitumt/did/create_account`,
+			{
+			  token: ABB_APP_KEY,
+			  chain: "mitumt",
+			}
+		  );
+	
+		  console.log("createDIDResponse.data.data : ", createDIDResponse.data.data);
+		  const nowDID = createDIDResponse.data.data.did;
+		  console.log("nowDID : ", nowDID);
+		  await SecureStore.setItemAsync("did", nowDID);
+
 		if (
 			walletAddress === null ||
 			walletAddress === undefined ||
@@ -79,13 +98,13 @@ const Profile = ({ navigation }: any) => {
 			<CommonLayout>
 				<WhiteHeader title="프로필 만들기" />
 				<SubMain
-					subTitle="NFT 프로필"
-					mainTitle={`OOO은 내 반려견의\n프로필을 NFT로 만들어\n평생 소장 프로필을 만듭니다.`}
+					subTitle="DID 프로필"
+					mainTitle={`IDog는 내 반려견의\n프로필을 DID로 만들어\n평생 소장 프로필을 만듭니다.`}
 					bgImg={SubMainImg}
 					desc="프로필 만들기"
 				/>
 				<View style={ProfileLayout.profileWrap}>
-					<Text style={ProfileLayout.subTitle}>NFT Service</Text>
+					<Text style={ProfileLayout.subTitle}>DID Service</Text>
 					<View style={ProfileLayout.titleWrap}>
 						<Text style={ProfileLayout.mainTitle}>
 							더 쉽고 간편한{"\n"}반려견 소유 증명
@@ -101,7 +120,7 @@ const Profile = ({ navigation }: any) => {
 							onPress={() => createProfile("CreateProfile")}
 						>
 							<ProfileItem
-								desc="평생 소장하는 내 반려견 NFT 프로필"
+								desc="평생 소장하는 내 반려견 DID 프로필"
 								title="프로필 만들기"
 								thumbnail={NftCardIcon}
 							/>
@@ -123,7 +142,7 @@ const Profile = ({ navigation }: any) => {
 				</View>
 				<View style={ProfileLayout.myNftWrap}>
 					<View style={ProfileLayout.myNftTitleWrap}>
-						<Text style={ProfileLayout.myNftTitle}>내 보유 NFT</Text>
+						<Text style={ProfileLayout.myNftTitle}>내 보유 DID</Text>
 						<Text style={ProfileLayout.myNftMore}>전체보기</Text>
 					</View>
 					<ScrollView horizontal={true} style={ProfileLayout.nftList}>
@@ -132,7 +151,7 @@ const Profile = ({ navigation }: any) => {
 							{renderFront()}
 						</GestureFlipView>
 						{dogList.map((dogItem: any, index: any) => {
-							console.log("dog Item  : : : : : ", dogItem);
+							// console.log("dog Item  : : : : : ", dogItem);
 							return (
 								<View key={index} style={{ marginLeft: 10 }}>
 									<NftProfile

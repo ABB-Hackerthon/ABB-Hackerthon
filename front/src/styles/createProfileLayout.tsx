@@ -81,10 +81,11 @@ const CreateProfileLayout = StyleSheet.create({
 		borderColor: "#9D9D9D",
 		display: "flex",
 		flexDirection: "row",
-		justifyContent: "flex-start",
+		justifyContent: "center",
 		alignItems: "center",
 		paddingHorizontal: responsiveWidth(2),
 		marginTop: 7,
+		
 	},
 	dateFormText: {
 		marginLeft: responsiveWidth(2),
