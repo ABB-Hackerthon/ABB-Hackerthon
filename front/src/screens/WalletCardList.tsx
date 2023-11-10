@@ -34,6 +34,7 @@ type Wallet = {
 	discount: string;
 	balance: number;
 	recognize: string;
+	imageSource: string;
 };
 
 const WAlletCardList = () => {
@@ -71,31 +72,35 @@ const WAlletCardList = () => {
 				);
 
 				let balance = balanceResponse.data.data.balance;
-				let name, discount, period, recognize;
+				let name, discount, period, recognize, imageSource;
 
 				if (contractAddress === CONTRACT_ADDRESS_COFFEE && balance > 0) {
+					imageSource = require("../../assets/images/icon_Coffee_.png");
 					recognize = "커피";
-					name = "커피 할인";
+					name = "커피 할인 쿠폰";
 					discount = "5%";
 					period = "2023-12-11";
 				} else if (
 					contractAddress === CONTRACT_ADDRESS_DOG_FOOD &&
 					balance > 0
 				) {
+					imageSource = require("../../assets/images/icon_dogfoodii_.png");
 					recognize = "사료";
-					name = "강아지 사료 할인";
+					name = "강아지 사료 할인 쿠폰";
 					discount = "10%";
 					period = "2023-12-11";
 				} else if (contractAddress === CONTRACT_ADDRESS_GAS && balance > 0) {
+					imageSource = require("../../assets/images/icon_GasPump_.png");
 					recognize = "주유소";
-					name = "주유소 할인";
+					name = "주유소 할인 쿠폰";
 					discount = "5%";
 					period = "2023-12-11";
 				} else {
-					continue; // 알려지지 않은 계약 주소는 무시합니다.
+					continue;
 				}
 
 				newWalletList.push({
+					imageSource,
 					recognize,
 					name,
 					period,
@@ -138,7 +143,7 @@ const WAlletCardList = () => {
 				</View>
 				<View style={styles.btncontainer}>
 					<View style={styles.btncontentcontainer}>
-						<Text>텍스트</Text>
+						<Text>쿠폰함</Text>
 					</View>
 				</View>
 
@@ -146,33 +151,20 @@ const WAlletCardList = () => {
 					<View style={styles.walletTable}>
 						<Text> 아이템 리스트 </Text>
 					</View>
-					{walletList?.map((wallet, name) => {
-						// const categoryData = textToImg[wallet.recognize] || {
-						// 	img: "",
-						// 	color: "",
-						// };
-						// const img = categoryData.img;
-						// const color = categoryData.color;
-
-						// // Image 컴포넌트에 이미지 소스를 올바르게 전달
-						// const imageSource =
-						// 	typeof img === "string" && img.startsWith("http")
-						// 		? { uri: img }
-						// 		: img; // 로컬 이미지일 경우 require(img)를 사용해야 합니다.
+					{walletList?.map((wallet, index) => {
 						return (
 							<>
 								<TouchableOpacity
-									key={name}
+									key={index}
 									style={styles.wallet}
 									onPress={() => {
 										openModal(wallet);
 									}}
 								>
-									{/* <View
-										style={[styles.imgcontainer, { backgroundColor: color }]}
-									>
-										<Image style={styles.couponImg} source={img}></Image> */}
-									{/* </View> */}
+									{/* <Image
+										style={styles.couponImg}
+										source={{ uri: wallet.imageSource }} // 이미지 소스
+									/> */}
 									<View style={styles.wallettextcol}>
 										<Text>{wallet.name}</Text>
 										{/* <Text>유효기간: {wallet.period}</Text> */}
