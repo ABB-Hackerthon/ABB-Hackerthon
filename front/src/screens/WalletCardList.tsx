@@ -146,7 +146,7 @@ const WAlletCardList = () => {
 					<View style={styles.walletTable}>
 						<Text> 아이템 리스트 </Text>
 					</View>
-					{walletList?.map((wallet, index) => {
+					{walletList?.map((wallet, name) => {
 						// const categoryData = textToImg[wallet.recognize] || {
 						// 	img: "",
 						// 	color: "",
@@ -162,7 +162,7 @@ const WAlletCardList = () => {
 						return (
 							<>
 								<TouchableOpacity
-									key={index}
+									key={name}
 									style={styles.wallet}
 									onPress={() => {
 										openModal(wallet);
@@ -175,7 +175,7 @@ const WAlletCardList = () => {
 									{/* </View> */}
 									<View style={styles.wallettextcol}>
 										<Text>{wallet.name}</Text>
-										<Text>유효기간: {wallet.period}</Text>
+										{/* <Text>유효기간: {wallet.period}</Text> */}
 										<Text>저장된 갯수: {wallet.balance}</Text>
 									</View>
 									<Text>품목: {wallet.recognize}</Text>
@@ -201,7 +201,7 @@ const WAlletCardList = () => {
 								<>
 									<View style={styles.cardcontainer}>
 										<Text style={styles.modalText}>{selectedWallet?.name}</Text>
-										<Text>유효기간: {selectedWallet?.period}</Text>
+										{/* <Text>유효기간: {selectedWallet?.period}</Text> */}
 										<Text>토큰번호: {selectedWallet.contractAddress}</Text>
 									</View>
 									<View style={styles.qrImg}>
