@@ -45,6 +45,7 @@ const CreateFeed = ({ navigation, route }: any) => {
 	useEffect(() => {
 		const getReceiver = async () => {
 			const receiver = await SecureStore.getItemAsync("address");
+			console.log("리시버 : ", receiver);
 			setReceiver(receiver);
 		};
 		getReceiver();

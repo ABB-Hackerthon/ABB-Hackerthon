@@ -32,6 +32,7 @@ const GeoLocationAPI = (props: Props) => {
 			const response = await axios.get(
 				`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&language=ko&key=${GEOCODING_API_KEY}`,
 			);
+			console.log("response get ADDRESS : ", response);
 			const formattedAddress = response.data.results[0].formatted_address;
 			const addressParts = formattedAddress.split(" ");
 			const address = `${addressParts[1]} ${addressParts[2]} ${addressParts[3]}`;

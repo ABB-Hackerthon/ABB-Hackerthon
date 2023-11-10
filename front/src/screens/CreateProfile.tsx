@@ -89,7 +89,7 @@ const CreateProfile = ({ navigation }: any) => {
 	});
 
 	//template subjectkey 스위치문
-
+	
 	// useEffect(() => {
 	// 	getSecure();
 	// }, []);
@@ -100,9 +100,6 @@ const CreateProfile = ({ navigation }: any) => {
 	// 	);
 	// 	setSecretkey(secret);
 	// }
-	useEffect(() => {
-		console.log("TSETSETSETSE");
-	}, []);
 
 	const uploadImage = async (uri) => {
 		const response = await fetch(uri);
@@ -110,116 +107,110 @@ const CreateProfile = ({ navigation }: any) => {
 		const filename = uri.split("/").pop();
 		const type = blob.type;
 		const params = {
-			Bucket: AWS_BUCKET,
-			Key: filename,
-			Body: blob,
-			ContentType: type,
+		  Bucket: AWS_BUCKET,
+		  Key: filename,
+		  Body: blob,
+		  ContentType: type,
 		};
-		console.log("118번째라인");
-
+	  
 		s3.upload(params, async (err, data) => {
-			if (err) {
-				alert("s3 시스템 에러, 관리자에게 문의하세요.");
-				setIsLoading(false);
-				console.log("err", err);
-				return;
-			}
-
-			const s3ImageUrl = data.Location;
-			try {
-				// 2. Issue Credential 생성 (DID에 들어가는 세부항목-조건?)
-				// 2-1. template 리스트 받아오기
-				const nowDID = await SecureStore.getItemAsync("did");
-				const response = await axios.post(
-					`${ABB_BASE_URL}/v1/mitumt/did/templates`,
-					{
-						token: ABB_APP_KEY,
-						chain: "mitumt",
-						project_id: DID_PROJECT_ID,
-					},
-				);
-				console.log("response : ", response);
-
-				const templateList = response.data.data;
-				let templateValue;
-				console.log("templateList : 144번째라인 : ", templateList);
-
-				for (const element of templateList) {
-					console.log("element : ", element);
-					const templateId = element.template_id;
-					console.log("templateId : ", templateId);
-					const value = element.subject_key;
-
-					if (value === "dogBirth") {
-						templateValue = petBirth;
-					} else if (value === "dogBreed") {
-						templateValue = petSpecies;
-					} else if (value === "dogName") {
-						templateValue = petName;
-					} else if (value === "dogSex") {
-						templateValue = petGender;
-					} else if (value === "dogOwner") {
-						await axiosApi
-							.get("/user")
-							.then((data) => {
-								if (data.data.message === "회원 정보 조회 완료") {
-									console.log("user", data.data.data);
-									console.log("userName", data.data.data.userName);
-									templateValue = data.data.data.userName;
-								}
-							})
-							.catch((error) => {
-								console.log("현재 에러상황발생", error);
-							});
-					}
-
-					console.log("templateSubjectKey : ", value);
-					console.log("templateValue : ", templateValue);
-
-					// 2-2. DID Template 를 기준으로 크리덴셜을 발행
-					const issueResponse = await axios.post(
-						`${ABB_BASE_URL}/v1/mitumt/did/issue`,
-						{
-							token: ABB_APP_KEY,
-							chain: "mitumt",
-							did: nowDID,
-							template_id: templateId,
-							subject: {
-								key: value,
-								value: templateValue,
-							},
-							validfrom: "2023-11-01T00:00:00.000Z",
-							validuntil: "2023-12-31T23:59:59.999Z",
-						},
-					);
-					console.log("193번째라인");
-					console.log("issueResponse : ", issueResponse);
-				}
-
-				// 3. DB에 강아지 정보 저장
-				const idogResponse = await axiosApi.post(`/dog`, {
-					dogName: petName,
-					dogBreed: petSpecies,
-					dogBirthDate: petBirth,
-					dogSex: petGender,
-					dogHash: "",
-					dogImg: String(s3ImageUrl),
+		  if (err) {
+			alert("s3 시스템 에러, 관리자에게 문의하세요.");
+			setIsLoading(false);
+			console.log("err", err);
+			return;
+		  }
+	  
+		  const s3ImageUrl = data.Location;
+		  try {
+			// 2. Issue Credential 생성 (DID에 들어가는 세부항목-조건?)
+			// 2-1. template 리스트 받아오기
+			const nowDID = await SecureStore.getItemAsync("did");
+			const response = await axios.post(
+			  `${ABB_BASE_URL}/v1/mitumt/did/templates`,
+			  {
+				token: ABB_APP_KEY,
+				chain: "mitumt",
+				project_id: DID_PROJECT_ID,
+			  }
+			);
+	  
+			const templateList = response.data.data;
+			let templateValue;
+	  
+			for (const element of templateList) {
+			  console.log("element : ", element);
+			  const templateId = element.template_id;
+			  console.log("templateId : ", templateId);
+			  const value = element.subject_key;
+	  
+			  if (value === "dogBirth") {
+				templateValue = petBirth;
+			  } else if (value === "dogBreed") {
+				templateValue = petSpecies;
+			  } else if (value === "dogName") {
+				templateValue = petName;
+			  } else if (value === "dogSex") {
+				templateValue = petGender;
+			  } else if (value === "dogOwner") {
+				await axiosApi.get("/user").then((data) => {
+				  if (data.data.message === "회원 정보 조회 완료") {
+					console.log("user", data.data.data);
+					console.log("userName", data.data.data.userName);
+					templateValue = data.data.data.userName;
+				  }
+				}).catch((error) => {
+				  console.log("현재 에러상황발생", error);
 				});
+			  }
+	  
+			  console.log("templateSubjectKey : ", value);
+			  console.log("templateValue : ", templateValue);
+	  
+			  // 2-2. DID Template 를 기준으로 크리덴셜을 발행
+			  const issueResponse = await axios.post(
+				`${ABB_BASE_URL}/v1/mitumt/did/issue`,
+					{
+						"token": ABB_APP_KEY,
+						"chain": "mitumt",
+						"did": nowDID,
+						"template_id": templateId,
+						"subject": {
+							"key": value,
+							"value": templateValue
+						},
+						"validfrom": "2023-11-01T00:00:00.000Z",
+						"validuntil": "2023-12-31T23:59:59.999Z"
+					}
+			  );
 
-				if (idogResponse.data.message === "강아지 프로필 등록 완료") {
-					Alert.alert("프로필 생성이 완료되었습니다.");
-					setIsLoading(false);
-					navigation.replace("Profile");
-				} else {
-					setIsLoading(false);
-					alert("프로필 생성 실패, 관리자에게 문의하세요.");
-				}
-			} catch (error) {
-				console.log(error);
+			  console.log("issueResponse : ",issueResponse);
 			}
+	  
+			// 3. DB에 강아지 정보 저장
+			const idogResponse = await axiosApi.post(`/dog`, {
+			  dogName: petName,
+			  dogBreed: petSpecies,
+			  dogBirthDate: petBirth,
+			  dogSex: petGender,
+			  dogHash: "",
+			  dogImg: String(s3ImageUrl),
+			});
+	  
+			if (idogResponse.data.message === "강아지 프로필 등록 완료") {
+			  Alert.alert("프로필 생성이 완료되었습니다.");
+			  setIsLoading(false);
+			  navigation.replace("Profile");
+			} else {
+			  setIsLoading(false);
+			  alert("프로필 생성 실패, 관리자에게 문의하세요.");
+			}
+		  } catch (error) {
+			console.log(error);
+		  }
 		});
-	};
-
+	  };
+	  
 	const uploadIpfs = async () => {
 		try {
 			await setIsLoading(true);
